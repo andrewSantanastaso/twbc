@@ -1,0 +1,16 @@
+# Netlify build configuration for the Trigger Warnings Book Club site.
+
+[build]
+  command = "npm run build"   # runs prebuild (fetch-feed) then vite build
+  publish = "dist"            # Vite's build output folder
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# SPA fallback: serve index.html for client-side routes (/episodes, /about, …)
+# so a refresh or direct link doesn't 404. (public/_redirects does the same;
+# this is a belt-and-suspenders duplicate that lives with the build config.)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

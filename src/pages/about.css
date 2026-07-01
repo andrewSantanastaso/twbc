@@ -1,0 +1,30 @@
+.about-hero {
+  background: linear-gradient(165deg, var(--cream) 0%, var(--peach) 100%);
+  color: var(--ink); padding: 72px 0; border-bottom: 1px solid var(--line);
+}
+.about-hero h1 { font-size: clamp(34px, 5vw, 56px); color: var(--ink); }
+
+.about-body { display: grid; grid-template-columns: 1.6fr .9fr; gap: 48px; align-items: start; }
+.about-lead p { font-size: 17px; color: var(--ink); margin-bottom: 18px; line-height: 1.7; }
+.about-lead .scythe-rule { margin: 28px 0; color: var(--berry-soft); }
+.about-feed-desc { font-size: 15px !important; color: var(--ink-soft) !important; font-style: italic; }
+
+.about-card {
+  background: var(--cream); border: 1px solid var(--cream-dk); border-radius: var(--radius);
+  padding: 28px 26px; position: sticky; top: 90px;
+}
+.about-card h3 { font-size: 24px; color: var(--ink); margin-bottom: 10px; font-family: var(--font-display); }
+.about-card p { font-size: 14.5px; color: var(--ink-soft); margin-bottom: 16px; }
+.about-rss {
+  display: inline-flex; align-items: center; gap: 9px;
+  background: var(--berry); color: #fff; padding: 11px 22px; border-radius: 40px;
+  font-weight: 500; font-size: 15px; transition: background .15s;
+}
+.about-rss:hover { background: var(--berry-dk); }
+.about-rss--alt {
+  background: transparent; color: var(--berry-dk); border: 1px solid var(--cream-dk);
+  margin-top: 10px;
+}
+.about-rss--alt:hover { background: #fff; }
+.about-fine { margin-top: 16px; font-size: 12.5px !important; }
+@media (max-width: 800px) { .about-body { grid-template-columns: 1fr; } .about-card { position: static; } }
