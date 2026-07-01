@@ -68,8 +68,17 @@ export default function ReadingList() {
 }
 
 function BookCard({ book }) {
+  const query = encodeURIComponent(`${book.title} ${book.author || ''}`.trim());
+  const goodreads = `https://www.goodreads.com/search?q=${query}`;
+
   return (
-    <article className="bookcard">
+    <a
+      className="bookcard"
+      href={goodreads}
+      target="_blank"
+      rel="noreferrer"
+      aria-label={`${book.title}${book.author ? ' by ' + book.author : ''} — view on Goodreads`}
+    >
       <div className="bookcard__cover">
         {book.cover
           ? <img
@@ -81,12 +90,13 @@ function BookCard({ book }) {
           : <div className="bookcard__placeholder" aria-hidden="true">
               <svg width="34" height="34" viewBox="0 0 24 24"><path d="M4 5a2 2 0 012-2h9a2 2 0 012 2v15l-6-3-6 3V5z" fill="currentColor" opacity="0.35"/></svg>
             </div>}
+        <span className="bookcard__hover" aria-hidden="true">View on Goodreads</span>
       </div>
       <div className="bookcard__body">
         <h4 className="bookcard__title">{book.title}</h4>
         {book.author && <p className="bookcard__author">{book.author}</p>}
         {book.note && <span className="bookcard__note">{book.note}</span>}
       </div>
-    </article>
+    </a>
   );
 }

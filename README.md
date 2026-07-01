@@ -98,6 +98,11 @@ author on Google Books and fills the cover in automatically. Priority order:
 3. **Google Books auto-fetch** — the default; happens at build time.
 4. If nothing is found, the card shows a tasteful placeholder.
 
+Each book card links to a **Goodreads search** for that title + author (opens in a new
+tab), so listeners can read reviews and shelve it. Goodreads has no public API, so this
+uses a search URL rather than a direct book link — it always resolves, even for brand-new
+releases.
+
 Lookups are cached in `scripts/.cover-cache.json` (gitignored, rebuilt as needed)
 so repeat lookups within a build are fast. The script retries on rate-limits and a
 failed lookup never breaks the build — it just leaves that cover blank and logs it.
