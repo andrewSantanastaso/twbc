@@ -1,6 +1,6 @@
-import { Link } from 'react-router-dom';
-import { ScytheRule } from './Scythe';
-import './Footer.css';
+import { Link } from "react-router-dom";
+import { ScytheRule } from "./Scythe";
+import "./Footer.css";
 
 export default function Footer() {
   return (
@@ -22,7 +22,7 @@ export default function Footer() {
           </nav>
         </div>
         <p className="foot__fine">
-          © {new Date().getFullYear()} Trigger Warnings Book Club. Hosted by CJ & Holly.
+          © {new Date().getFullYear()} Trigger Warnings Book Club.
         </p>
       </div>
     </footer>
