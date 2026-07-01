@@ -96,7 +96,15 @@ author on Google Books and fills the cover in automatically. Priority order:
 2. **Cover URL override** — paste a direct image link in the "Cover URL override"
    field to force a specific cover (use this if the auto one looks wrong).
 3. **Google Books auto-fetch** — the default; happens at build time.
+   The script rejects Google's generic "image not available" placeholder (it checks
+   the actual image size) and falls back to Open Library's cover when needed. If no
+   real cover is found anywhere, it leaves it blank rather than showing a bad image.
 4. If nothing is found, the card shows a tasteful placeholder.
+
+**If a cover still looks wrong or generic:** paste a direct image link into the
+book's "Cover URL override" field in the CMS — that always wins over auto-fetch.
+Good sources for a cover image URL: the book's Goodreads or publisher page (right-click
+the cover → Copy Image Address).
 
 Each book card links to a **Goodreads search** for that title + author (opens in a new
 tab), so listeners can read reviews and shelve it. Goodreads has no public API, so this

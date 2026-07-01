@@ -93,22 +93,83 @@ async function fetchCover(title, author) {
   const items = data.items || [];
   if (!items.length) return { cover: '', matched: null };
 
+  // Score each result and pick the best real cover.
+  // Google often returns a generic "image not available" graphic; those
+  // URLs carry no zoom/edge params and the volume usually lacks an ISBN,
+  // so we prefer results that have BOTH a thumbnail AND an industry ID.
+  const candidates = [];
   for (const it of items) {
     const info = it.volumeInfo || {};
     const links = info.imageLinks || {};
     const raw = links.thumbnail || links.smallThumbnail || '';
-    if (raw) {
-      const cover = raw
-        .replace('http://', 'https://')
-        .replace('&edge=curl', '')
-        .replace('zoom=1', 'zoom=2');
-      return {
-        cover,
-        matched: `${info.title || '?'}${info.authors ? ' — ' + info.authors.join(', ') : ''}`,
-      };
-    }
+    if (!raw) continue;
+
+    const ids = info.industryIdentifiers || [];
+    const isbn = ids.find((x) => x.type === 'ISBN_13' || x.type === 'ISBN_10');
+    // Google placeholder thumbnails typically lack a real content id / are tiny.
+    const looksReal = /books\.google\.com\/books\/content\?id=/.test(raw) && !!links.thumbnail;
+
+    candidates.push({
+      raw, info, isbn: isbn ? isbn.identifier : '',
+      score: (isbn ? 2 : 0) + (looksReal ? 1 : 0),
+    });
   }
-  return { cover: '', matched: null };
+  if (!candidates.length) return { cover: '', matched: null };
+
+  candidates.sort((a, b) => b.score - a.score);
+  const best = candidates[0];
+
+  // Decide the cover, then VERIFY it's a real image (not Google's
+  // "image not available" placeholder, which is a fixed ~128px-wide grey
+  // graphic). We check the actual bytes' size as the reliable signal.
+  let cover = '';
+  if (best.score >= 1) {
+    cover = best.raw
+      .replace('http://', 'https://')
+      .replace('&edge=curl', '')
+      .replace('zoom=1', 'zoom=2');
+  }
+
+  // Verify — and fall back to Open Library by ISBN if Google's is bogus.
+  cover = await verifyOrFallback(cover, best.isbn);
+
+  return {
+    cover,
+    matched: `${best.info.title || '?'}${best.info.authors ? ' — ' + best.info.authors.join(', ') : ''}`,
+  };
+}
+
+// Google's placeholder is a small grey "image not available" PNG (a few KB).
+// Real covers are much larger. We HEAD/GET the image and judge by byte size,
+// falling back to Open Library's ISBN cover (which 404s cleanly when missing).
+async function verifyOrFallback(googleUrl, isbn) {
+  const olUrl = isbn
+    ? `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg?default=false`
+    : '';
+
+  if (googleUrl) {
+    try {
+      const r = await fetch(googleUrl);
+      if (r.ok) {
+        const buf = Buffer.from(await r.arrayBuffer());
+        // Google's "not available" graphic is ~2–8 KB. Real covers are >10 KB.
+        if (buf.length > 10000) return googleUrl;
+      }
+    } catch { /* fall through to Open Library */ }
+  }
+
+  if (olUrl) {
+    try {
+      const r = await fetch(olUrl);
+      // ?default=false makes OL return 404 (not a blank) when it has no cover.
+      if (r.ok) {
+        const len = Number(r.headers.get('content-length') || 0);
+        if (len === 0 || len > 1000) return olUrl;
+      }
+    } catch { /* give up */ }
+  }
+
+  return ''; // no trustworthy cover — page shows the placeholder card
 }
 
 async function loadCache() {
