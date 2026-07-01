@@ -102,16 +102,27 @@ async function fetchCover(title, author) {
     const info = it.volumeInfo || {};
     const links = info.imageLinks || {};
     const raw = links.thumbnail || links.smallThumbnail || '';
-    if (!raw) continue;
 
     const ids = info.industryIdentifiers || [];
     const isbn = ids.find((x) => x.type === 'ISBN_13' || x.type === 'ISBN_10');
-    // Google placeholder thumbnails typically lack a real content id / are tiny.
-    const looksReal = /books\.google\.com\/books\/content\?id=/.test(raw) && !!links.thumbnail;
+
+    // Extract the Google volume id from the image URL (or the item id).
+    const idMatch = raw.match(/[?&]id=([^&]+)/);
+    const volId = (idMatch ? idMatch[1] : it.id) || '';
+
+    // Google volume ids ending in "AAJ" are typically catalog-only stubs with
+    // no real cover (Google serves its grey "image not available" graphic).
+    // This is a fast hint only — the real decision is the size check in
+    // verifyOrFallback(), which downloads the image and rejects the small
+    // placeholder. We keep the hint to prefer better candidates when ranking.
+    const coverlessHint = /AAJ$/.test(volId);
+    const hasGoogleImage = !!links.thumbnail && !coverlessHint;
 
     candidates.push({
-      raw, info, isbn: isbn ? isbn.identifier : '',
-      score: (isbn ? 2 : 0) + (looksReal ? 1 : 0),
+      raw, info, volId, isbn: isbn ? isbn.identifier : '',
+      hasGoogleImage,
+      // Prefer: real Google image + ISBN, then ISBN-only, then anything.
+      score: (hasGoogleImage ? 2 : 0) + (isbn ? 1 : 0),
     });
   }
   if (!candidates.length) return { cover: '', matched: null };
@@ -119,19 +130,18 @@ async function fetchCover(title, author) {
   candidates.sort((a, b) => b.score - a.score);
   const best = candidates[0];
 
-  // Decide the cover, then VERIFY it's a real image (not Google's
-  // "image not available" placeholder, which is a fixed ~128px-wide grey
-  // graphic). We check the actual bytes' size as the reliable signal.
-  let cover = '';
-  if (best.score >= 1) {
-    cover = best.raw
+  // Build the Google cover only if this result actually has a real one.
+  let googleCover = '';
+  if (best.hasGoogleImage && best.raw) {
+    googleCover = best.raw
       .replace('http://', 'https://')
       .replace('&edge=curl', '')
       .replace('zoom=1', 'zoom=2');
   }
 
-  // Verify — and fall back to Open Library by ISBN if Google's is bogus.
-  cover = await verifyOrFallback(cover, best.isbn);
+  // Verify the Google image is real (size check) and/or fall back to
+  // Open Library by ISBN, which 404s cleanly when it has no cover.
+  const cover = await verifyOrFallback(googleCover, best.isbn);
 
   return {
     cover,
@@ -140,7 +150,7 @@ async function fetchCover(title, author) {
 }
 
 // Google's placeholder is a small grey "image not available" PNG (a few KB).
-// Real covers are much larger. We HEAD/GET the image and judge by byte size,
+// Real covers are much larger. We GET the image and judge by byte size,
 // falling back to Open Library's ISBN cover (which 404s cleanly when missing).
 async function verifyOrFallback(googleUrl, isbn) {
   const olUrl = isbn
@@ -172,9 +182,18 @@ async function verifyOrFallback(googleUrl, isbn) {
   return ''; // no trustworthy cover — page shows the placeholder card
 }
 
+// Bump this when the cover-resolution logic changes, so old cached URLs
+// (e.g. previously-accepted placeholders) are discarded automatically.
+const CACHE_VERSION = 2;
+
 async function loadCache() {
-  try { return JSON.parse(await readFile(CACHE, 'utf8')); }
-  catch { return {}; }
+  try {
+    const data = JSON.parse(await readFile(CACHE, 'utf8'));
+    if (data.__version === CACHE_VERSION) return data;
+    return { __version: CACHE_VERSION };   // stale — start fresh
+  } catch {
+    return { __version: CACHE_VERSION };
+  }
 }
 
 async function main() {
