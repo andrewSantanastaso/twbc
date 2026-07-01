@@ -1,0 +1,76 @@
+# ─────────────────────────────────────────────────────────────
+#  Decap CMS configuration — the Reading List editor.
+#
+#  IMPORTANT: set `repo` below to your GitHub repo (owner/name),
+#  e.g. "hollycj/twbc-site". This is the ONE value you must edit.
+# ─────────────────────────────────────────────────────────────
+
+backend:
+  name: github
+  repo: andrewSantanastaso/twbc               # your GitHub repo
+  branch: main                                # your default branch
+  base_url: https://api.netlify.com           # Netlify acts as the OAuth broker
+  auth_endpoint: auth
+
+# Where uploaded cover images are stored in the repo, and the public path
+# they resolve to on the built site.
+media_folder: "public/uploads/covers"
+public_folder: "/uploads/covers"
+
+# Nicer commit messages in your Git history
+backend_commit_messages:
+  create: 'Add reading list: {{slug}}'
+  update: 'Update reading list: {{slug}}'
+  delete: 'Remove reading list: {{slug}}'
+  uploadMedia: 'Upload cover image: {{path}}'
+  deleteMedia: 'Remove cover image: {{path}}'
+
+collections:
+  - name: "reading_list"
+    label: "Reading List"
+    label_singular: "Month"
+    description: "The books Holly & CJ are reading each month. Newest month shows first; older months move to the archive automatically."
+    folder: "content/reading-list"
+    create: true
+    slug: "{{year}}-{{month}}"          # filenames like 2026-07.md
+    identifier_field: month_label
+    summary: "{{month_label}}"
+    sortable_fields: [order_date]
+    fields:
+      - label: "Month"
+        name: "month_label"
+        widget: "string"
+        hint: "How it appears on the site, e.g. 'July 2026'."
+
+      - label: "Month (for sorting)"
+        name: "order_date"
+        widget: "datetime"
+        date_format: "YYYY-MM"
+        time_format: false
+        format: "YYYY-MM"
+        hint: "Pick any day in the month — used only to order months newest-first."
+
+      - label: "Intro (optional)"
+        name: "intro"
+        widget: "text"
+        required: false
+        hint: "A short line shown under the month heading, if you want one."
+
+      - label: "Books"
+        name: "books"
+        widget: "list"
+        label_singular: "Book"
+        summary: "{{fields.title}} — {{fields.author}}"
+        fields:
+          - { label: "Title", name: "title", widget: "string" }
+          - { label: "Author", name: "author", widget: "string" }
+          - label: "Cover image"
+            name: "cover"
+            widget: "image"
+            required: false
+            hint: "Upload the book cover. Optional but recommended."
+          - label: "Note (optional)"
+            name: "note"
+            widget: "string"
+            required: false
+            hint: "e.g. 'Book club pick' or 'CJ's choice'."
