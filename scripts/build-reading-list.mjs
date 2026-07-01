@@ -1,9 +1,20 @@
 #!/usr/bin/env node
 // ─────────────────────────────────────────────────────────────
 //  Build-time reading-list compiler.
-//  Reads the Markdown files the CMS writes into content/reading-list/
-//  and emits src/data/reading-list.json for the app to import.
-//  Runs automatically before every build (see package.json prebuild).
+//  Reads the Markdown files the CMS writes into content/reading-list/,
+//  auto-fetches missing book covers from Google Books, and emits
+//  src/data/reading-list.json for the app to import.
+//
+//  Cover priority per book:
+//    1. Uploaded image (cover)         — admin uploaded one in the CMS
+//    2. Manual URL (cover_url)         — admin pasted an override link
+//    3. Google Books auto-fetch        — looked up by title + author
+//    4. "" (empty)                     — page shows a placeholder card
+//
+//  Resilient by design: any lookup failure just leaves the cover empty
+//  and logs it — the build never fails because of a cover miss.
+//  Results are cached in scripts/.cover-cache.json to keep builds fast
+//  and gentle on the API.
 // ─────────────────────────────────────────────────────────────
 
 import { readdir, readFile, writeFile, mkdir } from 'node:fs/promises';
@@ -13,9 +24,13 @@ import { fileURLToPath } from 'node:url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DIR = resolve(__dirname, '../content/reading-list');
 const OUT = resolve(__dirname, '../src/data/reading-list.json');
+const CACHE = resolve(__dirname, '.cover-cache.json');
 
-// Minimal YAML-frontmatter parser tailored to this schema
-// (string scalars + a `books:` list of maps). No external deps.
+// Optional: set GOOGLE_BOOKS_API_KEY in the environment for higher rate
+// limits. Works fine without one for a small site.
+const API_KEY = process.env.GOOGLE_BOOKS_API_KEY || '';
+
+// ── frontmatter parser (string scalars + a `books:` list of maps) ──
 function parseFrontmatter(raw) {
   const m = raw.match(/^---\s*\n([\s\S]*?)\n---/);
   if (!m) return {};
@@ -23,12 +38,10 @@ function parseFrontmatter(raw) {
   const data = { books: [] };
   let inBooks = false;
   let current = null;
-
   const unquote = (s) => s.trim().replace(/^["']|["']$/g, '');
 
   for (const line of lines) {
     if (/^books:\s*$/.test(line)) { inBooks = true; continue; }
-
     if (inBooks) {
       const item = line.match(/^\s*-\s+(\w+):\s*(.*)$/);
       const cont = line.match(/^\s{4,}(\w+):\s*(.*)$/);
@@ -39,7 +52,6 @@ function parseFrontmatter(raw) {
       } else if (cont && current) {
         current[cont[1]] = unquote(cont[2]);
       } else if (/^\S/.test(line)) {
-        // dedent back to top-level key ends the books list
         if (current) { data.books.push(current); current = null; }
         inBooks = false;
         const kv = line.match(/^(\w+):\s*(.*)$/);
@@ -47,12 +59,48 @@ function parseFrontmatter(raw) {
       }
       continue;
     }
-
     const kv = line.match(/^(\w+):\s*(.*)$/);
     if (kv) data[kv[1]] = unquote(kv[2]);
   }
   if (current) data.books.push(current);
   return data;
+}
+
+// ── Google Books cover lookup ──
+async function fetchCover(title, author) {
+  const terms = [`intitle:${title}`];
+  if (author) terms.push(`inauthor:${author}`);
+  const q = encodeURIComponent(terms.join(' '));
+  let url = `https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=3&printType=books&country=US`;
+  if (API_KEY) url += `&key=${API_KEY}`;
+
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  const items = data.items || [];
+  if (!items.length) return { cover: '', matched: null };
+
+  for (const it of items) {
+    const info = it.volumeInfo || {};
+    const links = info.imageLinks || {};
+    const raw = links.thumbnail || links.smallThumbnail || '';
+    if (raw) {
+      const cover = raw
+        .replace('http://', 'https://')
+        .replace('&edge=curl', '')
+        .replace('zoom=1', 'zoom=2');
+      return {
+        cover,
+        matched: `${info.title || '?'}${info.authors ? ' — ' + info.authors.join(', ') : ''}`,
+      };
+    }
+  }
+  return { cover: '', matched: null };
+}
+
+async function loadCache() {
+  try { return JSON.parse(await readFile(CACHE, 'utf8')); }
+  catch { return {}; }
 }
 
 async function main() {
@@ -63,30 +111,65 @@ async function main() {
     process.stdout.write('No reading-list content yet — writing empty list.\n');
   }
 
+  const cache = await loadCache();
+  let apiCalls = 0, autoCovers = 0, misses = 0;
+
   const months = [];
   for (const file of files) {
     const raw = await readFile(join(DIR, file), 'utf8');
     const fm = parseFrontmatter(raw);
     if (!fm.month_label) continue;
+
+    const books = [];
+    for (const b of fm.books || []) {
+      const title = b.title || '';
+      const author = b.author || '';
+
+      // Priority 1 & 2: explicit covers always win, no lookup needed
+      let cover = b.cover || b.cover_url || '';
+
+      // Priority 3: auto-fetch when no explicit cover was given
+      if (!cover && title) {
+        const key = `${title}|${author}`.toLowerCase();
+        if (key in cache) {
+          cover = cache[key];
+          if (cover) autoCovers++; else misses++;
+        } else {
+          try {
+            const { cover: c, matched } = await fetchCover(title, author);
+            apiCalls++;
+            cover = c;
+            cache[key] = c;
+            if (c) { autoCovers++; process.stdout.write(`  ✓ cover: "${title}" → ${matched}\n`); }
+            else   { misses++;     process.stdout.write(`  · no cover found: "${title}" by ${author}\n`); }
+          } catch (err) {
+            misses++;
+            process.stdout.write(`  ! lookup failed for "${title}": ${err.message} (left blank)\n`);
+          }
+        }
+      }
+
+      books.push({ title, author, cover, note: b.note || '' });
+    }
+
     months.push({
       month: fm.month_label,
       order: fm.order_date || file.replace('.md', ''),
       intro: fm.intro || '',
-      books: (fm.books || []).map((b) => ({
-        title: b.title || '',
-        author: b.author || '',
-        cover: b.cover || '',
-        note: b.note || '',
-      })),
+      books,
     });
   }
 
-  // newest month first
   months.sort((a, b) => (b.order || '').localeCompare(a.order || ''));
 
   await mkdir(dirname(OUT), { recursive: true });
   await writeFile(OUT, JSON.stringify(months, null, 2) + '\n', 'utf8');
-  process.stdout.write(`✓ Wrote ${months.length} month(s) to src/data/reading-list.json\n`);
+  try { await writeFile(CACHE, JSON.stringify(cache, null, 2) + '\n', 'utf8'); } catch {}
+
+  process.stdout.write(
+    `✓ Wrote ${months.length} month(s) to src/data/reading-list.json ` +
+    `(${apiCalls} lookups, ${autoCovers} covers, ${misses} without)\n`
+  );
 }
 
 main();

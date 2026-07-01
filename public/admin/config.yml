@@ -64,11 +64,16 @@ collections:
         fields:
           - { label: "Title", name: "title", widget: "string" }
           - { label: "Author", name: "author", widget: "string" }
-          - label: "Cover image"
+          - label: "Cover image (upload — optional)"
             name: "cover"
             widget: "image"
             required: false
-            hint: "Upload the book cover. Optional but recommended."
+            hint: "Leave blank to auto-fetch the cover from Google Books. Upload here only if you want a specific image."
+          - label: "Cover URL override (optional)"
+            name: "cover_url"
+            widget: "string"
+            required: false
+            hint: "Paste a direct image link to override the auto-fetched cover. Leave blank unless the automatic cover looks wrong."
           - label: "Note (optional)"
             name: "note"
             widget: "string"

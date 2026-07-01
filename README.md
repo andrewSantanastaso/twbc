@@ -88,6 +88,21 @@ Decap needs GitHub OAuth, with Netlify acting as the broker:
 
 That's it — after this, editing is just filling out the form.
 
+### Book covers (auto-fetched)
+When you add a book, **leave the cover blank** — the build looks it up by title +
+author on Google Books and fills the cover in automatically. Priority order:
+
+1. **Uploaded image** — if you upload one in the CMS, it's used as-is.
+2. **Cover URL override** — paste a direct image link in the "Cover URL override"
+   field to force a specific cover (use this if the auto one looks wrong).
+3. **Google Books auto-fetch** — the default; happens at build time.
+4. If nothing is found, the card shows a tasteful placeholder.
+
+Lookups are cached in `scripts/.cover-cache.json` (gitignored, rebuilt as needed)
+so repeat builds are fast. A failed lookup never breaks the build — it just leaves
+that cover blank and logs it. For higher API limits you can optionally set a
+`GOOGLE_BOOKS_API_KEY` environment variable in Netlify, but it's not required.
+
 ### Updating the reading list each month
 1. Go to `/admin` and log in.
 2. **Reading List → New Month.** Enter the month (e.g. "August 2026"), pick any date in

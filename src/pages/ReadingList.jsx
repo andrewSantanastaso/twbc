@@ -72,7 +72,12 @@ function BookCard({ book }) {
     <article className="bookcard">
       <div className="bookcard__cover">
         {book.cover
-          ? <img src={book.cover} alt={`${book.title} cover`} loading="lazy" />
+          ? <img
+              src={book.cover}
+              alt={`${book.title} cover`}
+              loading="lazy"
+              onError={(e) => { e.currentTarget.style.display = 'none'; }}
+            />
           : <div className="bookcard__placeholder" aria-hidden="true">
               <svg width="34" height="34" viewBox="0 0 24 24"><path d="M4 5a2 2 0 012-2h9a2 2 0 012 2v15l-6-3-6 3V5z" fill="currentColor" opacity="0.35"/></svg>
             </div>}
