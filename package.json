@@ -9,7 +9,8 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "fetch-feed": "node scripts/fetch-feed.mjs",
-    "prebuild": "node scripts/fetch-feed.mjs || true"
+    "prebuild": "node scripts/fetch-feed.mjs || true; node scripts/build-reading-list.mjs || true",
+    "build-reading-list": "node scripts/build-reading-list.mjs"
   },
   "dependencies": {
     "react": "^19.2.7",

@@ -52,9 +52,10 @@ site re-bakes the latest feed on its own — still static, still zero servers.
 - **Episodes** → generated from RSS into `src/data/episodes.json`; change the feed
   URL in `scripts/fetch-feed.mjs` if it ever moves. To hand-edit or add one
   manually, edit `src/data/episodes.json` directly (a later fetch will overwrite it).
-- **Reading list / "the shelf"** → shows all episodes from the feed; no separate
-  data. A dedicated books data source can be swapped in here later to organize by
-  book/author instead of by episode (see `src/pages/ReadingList.jsx`).
+- **Reading list** → managed through the CMS at `/admin` (no code). Each month is a
+  form entry (title, author, cover image per book). Saving commits a Markdown file
+  to `content/reading-list/`, which `scripts/build-reading-list.mjs` compiles into
+  `src/data/reading-list.json` at build time. See "Reading List CMS" below.
 - **Colors / fonts** → `src/theme.css`  (all theme tokens are at the top in `:root`)
 - **Copy on Home / About** → `src/pages/Home.jsx`, `src/pages/About.jsx`
 - **Spotify show + RSS links** → top of `src/pages/About.jsx`
@@ -66,4 +67,31 @@ catch-all redirect so every path serves `index.html`:
 - **Netlify**: a `public/_redirects` file containing `/*  /index.html  200`
 - **Vercel / Cloudflare Pages**: works out of the box
 - **GitHub Pages**: use a `404.html` fallback or hash routing
-# twbc
+
+## Reading List CMS (Decap)
+
+The Reading List is edited through a browser form at **`/admin`** — no code, no redeploy by hand.
+Saving an entry commits to GitHub, which triggers a Netlify rebuild automatically.
+
+**Content flow:** CMS form → Markdown file in `content/reading-list/` → `scripts/build-reading-list.mjs` → `src/data/reading-list.json` → React page.
+
+### One-time auth setup (required before `/admin` works)
+Decap needs GitHub OAuth, with Netlify acting as the broker:
+
+1. **Create a GitHub OAuth app:** GitHub → Settings → Developer settings → OAuth Apps → New.
+   - Homepage URL: `https://triggerwarningsbookclub.com`
+   - **Authorization callback URL:** `https://api.netlify.com/auth/done`  (exactly this)
+   - Click Register, then **Generate a new client secret**. Copy the Client ID and secret.
+2. **Give the keys to Netlify:** Netlify site → Site configuration → Access & security →
+   OAuth → Install provider → GitHub → paste the Client ID and secret.
+3. Visit `https://triggerwarningsbookclub.com/admin`, click **Login with GitHub**, authorize.
+
+That's it — after this, editing is just filling out the form.
+
+### Updating the reading list each month
+1. Go to `/admin` and log in.
+2. **Reading List → New Month.** Enter the month (e.g. "August 2026"), pick any date in
+   that month (for ordering), optionally an intro line.
+3. Add books: title, author, upload a cover image, optional note.
+4. **Publish.** The site rebuilds itself; the new month becomes the featured one and the
+   previous month drops into the archive automatically.
