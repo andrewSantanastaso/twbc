@@ -99,9 +99,18 @@ author on Google Books and fills the cover in automatically. Priority order:
 4. If nothing is found, the card shows a tasteful placeholder.
 
 Lookups are cached in `scripts/.cover-cache.json` (gitignored, rebuilt as needed)
-so repeat builds are fast. A failed lookup never breaks the build — it just leaves
-that cover blank and logs it. For higher API limits you can optionally set a
-`GOOGLE_BOOKS_API_KEY` environment variable in Netlify, but it's not required.
+so repeat lookups within a build are fast. The script retries on rate-limits and a
+failed lookup never breaks the build — it just leaves that cover blank and logs it.
+
+**Recommended: set a Google Books API key.** Keyless access shares a low rate limit
+across all traffic from the build server's IP, which can cause `HTTP 429` errors and
+blank covers. A free key gives you your own quota (1,000/day — far more than needed):
+
+1. console.cloud.google.com → new project → APIs & Services → Library → enable **Books API**.
+2. Credentials → Create credentials → **API key** → copy it.
+3. Netlify → Site configuration → **Environment variables** → add
+   `GOOGLE_BOOKS_API_KEY` = your key.
+4. Trigger a redeploy. The script picks it up automatically — no code change.
 
 ### Updating the reading list each month
 1. Go to `/admin` and log in.

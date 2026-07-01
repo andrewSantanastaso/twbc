@@ -66,6 +66,8 @@ function parseFrontmatter(raw) {
   return data;
 }
 
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
 // ── Google Books cover lookup ──
 async function fetchCover(title, author) {
   const terms = [`intitle:${title}`];
@@ -74,8 +76,19 @@ async function fetchCover(title, author) {
   let url = `https://www.googleapis.com/books/v1/volumes?q=${q}&maxResults=3&printType=books&country=US`;
   if (API_KEY) url += `&key=${API_KEY}`;
 
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  // Retry a couple of times on rate-limit (429) or transient 5xx,
+  // backing off longer each attempt.
+  let res;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    res = await fetch(url);
+    if (res.ok) break;
+    if (res.status === 429 || res.status >= 500) {
+      await sleep(1500 * (attempt + 1)); // 1.5s, then 3s
+      continue;
+    }
+    throw new Error(`HTTP ${res.status}`);
+  }
+  if (!res.ok) throw new Error(`HTTP ${res.status} (after retries)`);
   const data = await res.json();
   const items = data.items || [];
   if (!items.length) return { cover: '', matched: null };
@@ -138,6 +151,7 @@ async function main() {
           try {
             const { cover: c, matched } = await fetchCover(title, author);
             apiCalls++;
+            await sleep(350); // small spacing to stay under rate limits
             cover = c;
             cache[key] = c;
             if (c) { autoCovers++; process.stdout.write(`  ✓ cover: "${title}" → ${matched}\n`); }
