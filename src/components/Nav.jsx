@@ -6,7 +6,7 @@ const links = [
   { to: "/episodes", label: "Episodes" },
   { to: "/reading-list", label: "Reading list" },
   { to: "/about", label: "About" },
-  { to: "/wromancel", label: "WROMANCEL" },
+  { to: "/wromancel", label: "WROMANCEL", external: true },
 ];
 
 export default function Nav() {
