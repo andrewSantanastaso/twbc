@@ -1,11 +1,12 @@
-import { NavLink, Link } from 'react-router-dom';
-import './Nav.css';
+import { NavLink, Link } from "react-router-dom";
+import "./Nav.css";
 
 const links = [
-  { to: '/', label: 'Home', end: true },
-  { to: '/episodes', label: 'Episodes' },
-  { to: '/reading-list', label: 'Reading list' },
-  { to: '/about', label: 'About' },
+  { to: "/", label: "Home", end: true },
+  { to: "/episodes", label: "Episodes" },
+  { to: "/reading-list", label: "Reading list" },
+  { to: "/about", label: "About" },
+  { to: "/wromancel", label: "WROMANCEL" },
 ];
 
 export default function Nav() {
@@ -22,7 +23,9 @@ export default function Nav() {
               key={l.to}
               to={l.to}
               end={l.end}
-              className={({ isActive }) => 'nav__link' + (isActive ? ' is-active' : '')}
+              className={({ isActive }) =>
+                "nav__link" + (isActive ? " is-active" : "")
+              }
             >
               {l.label}
             </NavLink>
