@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { episodes } from '../lib/episodes';
 import EpisodeRow from '../components/EpisodeRow';
+import Seo from '../components/Seo';
 import './pages.css';
 
 const PER_PAGE = 8;
@@ -36,13 +37,19 @@ export default function Episodes() {
   const pageList = buildPageList(current, pageCount);
 
   return (
-    <section className="section">
-      <div className="wrap">
-        <div className="section__head">
-          <div>
-            <p className="eyebrow" style={{ marginBottom: 12 }}>The full archive</p>
-            <h2>Episodes</h2>
-          </div>
+    <>
+      <Seo
+        title="Episodes"
+        description="The full episode archive from Trigger Warnings Book Club — CJ and Holly on sports romance, fantasy, and dark romance. Search every episode."
+        path="/episodes"
+      />
+      <section className="section">
+        <div className="wrap">
+          <div className="section__head">
+            <div>
+              <p className="eyebrow" style={{ marginBottom: 12 }}>The full archive</p>
+              <h2>Episodes</h2>
+            </div>
           <input
             type="search"
             placeholder="Search episodes…"
@@ -107,6 +114,7 @@ export default function Episodes() {
         )}
       </div>
     </section>
+    </>
   );
 }
 

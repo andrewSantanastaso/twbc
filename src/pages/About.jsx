@@ -1,4 +1,5 @@
 import { ScytheRule } from '../components/Scythe';
+import Seo from '../components/Seo';
 import './pages.css';
 import './about.css';
 
@@ -8,6 +9,11 @@ const RSS_URL = 'https://anchor.fm/s/f2a61290/podcast/rss';
 export default function About() {
   return (
     <>
+      <Seo
+        title="About"
+        description="Meet CJ and Holly, the best friends behind Trigger Warnings Book Club — a romance podcast covering dark romance, sports romance, and fantasy. Subscribe on Spotify."
+        path="/about"
+      />
       <section className="about-hero">
         <div className="wrap">
           <p className="eyebrow" style={{ marginBottom: 16 }}>About the club</p>

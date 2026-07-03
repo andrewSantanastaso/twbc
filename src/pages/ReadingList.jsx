@@ -1,7 +1,16 @@
 import { useState } from 'react';
 import months from '../data/reading-list.json';
+import Seo from '../components/Seo';
 import './pages.css';
 import './reading.css';
+
+const READING_SEO = (
+  <Seo
+    title="Reading list"
+    description="Monthly romance book picks from Trigger Warnings Book Club — this month's reads plus the full archive. Build your TBR."
+    path="/reading-list"
+  />
+);
 
 export default function ReadingList() {
   const current = months[0];
@@ -10,21 +19,26 @@ export default function ReadingList() {
 
   if (!current) {
     return (
-      <section className="section">
-        <div className="wrap">
-          <div className="section__head">
-            <div>
-              <p className="eyebrow" style={{ marginBottom: 12 }}>Build your TBR</p>
-              <h2>Reading list</h2>
+      <>
+        {READING_SEO}
+        <section className="section">
+          <div className="wrap">
+            <div className="section__head">
+              <div>
+                <p className="eyebrow" style={{ marginBottom: 12 }}>Build your TBR</p>
+                <h2>Reading list</h2>
+              </div>
             </div>
+            <div className="state"><p>This month's picks are coming soon — check back shortly.</p></div>
           </div>
-          <div className="state"><p>This month's picks are coming soon — check back shortly.</p></div>
-        </div>
-      </section>
+        </section>
+      </>
     );
   }
 
   return (
+    <>
+    {READING_SEO}
     <section className="section">
       <div className="wrap">
         <div className="section__head">
@@ -64,6 +78,7 @@ export default function ReadingList() {
         )}
       </div>
     </section>
+    </>
   );
 }
 

@@ -1,0 +1,5 @@
+# Trigger Warnings Book Club
+User-agent: *
+Allow: /
+
+Sitemap: https://triggerwarningsbookclub.com/sitemap.xml

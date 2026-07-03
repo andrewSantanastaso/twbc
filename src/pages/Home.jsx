@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { episodes } from '../lib/episodes';
 import { ScytheRule, Blade } from '../components/Scythe';
 import EpisodeRow from '../components/EpisodeRow';
+import Seo from '../components/Seo';
 import './pages.css';
 
 export default function Home() {
@@ -9,6 +10,7 @@ export default function Home() {
 
   return (
     <>
+      <Seo path="/" />
       <section className="hero">
         <div className="wrap hero__inner">
           <div>
