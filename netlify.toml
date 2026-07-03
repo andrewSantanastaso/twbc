@@ -8,22 +8,14 @@
   NODE_VERSION = "20"
 
 # --- WROMANCEL proxy -------------------------------------------------------
-# The romance-guessing game is a separate Node+Postgres app on Railway. These
-# rules proxy /wromancel/ to that app while the URL bar keeps showing
-# triggerwarningsbookclub.com/wromancel/. status=200 = true rewrite (not a
-# redirect); force=true = wins over the SPA catch-all.
-#
-# The trailing slash matters: the bare /wromancel is redirected to /wromancel/
-# so the game's relative API/asset paths resolve under the proxy, not the site
-# root. Order matters — these MUST precede the /* fallback.
+# Proxy /wromancel to the Railway game app. status=200 = true rewrite (URL bar
+# keeps showing triggerwarningsbookclub.com/wromancel); force=true = wins over
+# the SPA catch-all. NO self-redirect (a /wromancel -> /wromancel/ hop caused a
+# redirect loop). The game page detects its prefix at runtime and uses absolute
+# API paths, so no trailing-slash normalization is needed. Order matters — these
+# MUST precede the /* fallback.
 [[redirects]]
   from = "/wromancel"
-  to = "/wromancel/"
-  status = 301
-  force = true
-
-[[redirects]]
-  from = "/wromancel/"
   to = "https://wromacel-v2-production.up.railway.app/daily.html"
   status = 200
   force = true
@@ -34,8 +26,7 @@
   status = 200
   force = true
 
-# SPA fallback: serve index.html for client-side routes (/episodes, /about, …)
-# so a refresh or direct link doesn't 404.
+# SPA fallback: serve index.html for client-side routes (/episodes, /about, …).
 [[redirects]]
   from = "/*"
   to = "/index.html"

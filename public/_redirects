@@ -1,16 +1,15 @@
 # WROMANCEL proxy — must come BEFORE the SPA catch-all below.
-# Netlify processes _redirects rules before netlify.toml, and first match wins.
+# Netlify processes _redirects before netlify.toml; first match wins.
 #
-# Rule 1: bare /wromancel -> /wromancel/ (301). The trailing slash is REQUIRED so
-# that relative asset/API paths in the game resolve under /wromancel/ instead of
-# the site root. Without it, "api/books/daily" would wrongly hit the podcast site.
-/wromancel              /wromancel/                                                  301!
+# No self-redirect (that caused a redirect loop). The game page detects the
+# /wromancel prefix at runtime and builds ABSOLUTE API paths, so it works with or
+# without a trailing slash — we just proxy straight through.
+#
+# Rule 1: /wromancel (exact) -> the daily page on Railway.
+/wromancel              https://wromacel-v2-production.up.railway.app/daily.html   200
 
-# Rule 2: the daily page itself, served at the /wromancel/ root.
-/wromancel/             https://wromacel-v2-production.up.railway.app/daily.html      200
-
-# Rule 3: everything else under /wromancel/ (the API, any assets) proxies through.
-/wromancel/*            https://wromacel-v2-production.up.railway.app/:splat          200
+# Rule 2: everything under /wromancel/ (the API, assets, etc.) proxies through.
+/wromancel/*            https://wromacel-v2-production.up.railway.app/:splat        200
 
 # SPA fallback for the podcast site's client-side routes.
-/*                      /index.html                                                  200
+/*                      /index.html                                                200
