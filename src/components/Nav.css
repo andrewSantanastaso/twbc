@@ -22,8 +22,90 @@
 .nav__link:hover { color: var(--berry); }
 .nav__link.is-active { color: var(--berry); background: var(--cream); }
 
+/* Hamburger toggle — hidden on desktop, shown on mobile */
+.nav__toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 44px; height: 44px;
+  padding: 0;
+  background: transparent; border: none; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.nav__toggle-bar {
+  display: block;
+  width: 22px; height: 2px;
+  margin: 0 auto;
+  background: var(--ink);
+  border-radius: 2px;
+  transition: transform .22s ease, opacity .22s ease;
+}
+/* Animate to an X when open */
+.nav__toggle-bar.is-open-1 { transform: translateY(7px) rotate(45deg); }
+.nav__toggle-bar.is-open-2 { opacity: 0; }
+.nav__toggle-bar.is-open-3 { transform: translateY(-7px) rotate(-45deg); }
+
+/* Mobile dropdown panel + backdrop — inert on desktop */
+.nav__mobile { display: none; }
+.nav__backdrop { display: none; }
+
 @media (max-width: 640px) {
   .nav__name { display: none; }
   .nav__inner { height: 60px; }
-  .nav__link { padding: 8px 10px; font-size: 13px; }
+
+  /* Swap inline links for the hamburger */
+  .nav__links { display: none; }
+  .nav__toggle { display: flex; }
+
+  /* The dropdown panel slides down under the bar */
+  .nav__mobile {
+    display: block;
+    position: absolute;
+    top: 60px; left: 0; right: 0;
+    background: var(--cream, #fbf3ec);
+    border-bottom: 1px solid var(--line);
+    box-shadow: 0 12px 24px rgba(60, 40, 30, 0.10);
+    z-index: 60;
+    animation: navDrop .18s ease;
+  }
+  .nav__mobile[hidden] { display: none; }
+  .nav__mobile-links {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 18px 14px;
+  }
+  .nav__mobile-links .nav__link {
+    font-size: 16px;
+    padding: 14px 12px;
+    border-radius: 10px;
+  }
+  .nav__mobile-links .nav__link:not(:last-child) {
+    border-bottom: 1px solid var(--line);
+    border-radius: 0;
+  }
+
+  .nav__backdrop {
+    display: block;
+    position: fixed;
+    top: 60px; left: 0; right: 0; bottom: 0;
+    background: rgba(30, 20, 15, 0.28);
+    z-index: 55;
+    animation: navFade .18s ease;
+  }
+}
+
+@keyframes navDrop {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes navFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav__toggle-bar,
+  .nav__mobile,
+  .nav__backdrop { transition: none; animation: none; }
 }
