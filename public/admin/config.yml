@@ -68,12 +68,12 @@ collections:
             name: "cover"
             widget: "image"
             required: false
-            hint: "Leave blank to auto-fetch the cover from Google Books. Upload here only if you want a specific image."
+            hint: "Upload a cover image for this book. (Grab one from Goodreads/Amazon: right-click the cover then Copy Image, or use the URL field below.)"
           - label: "Cover URL override (optional)"
             name: "cover_url"
             widget: "string"
             required: false
-            hint: "Paste a direct image link to override the auto-fetched cover. Leave blank unless the automatic cover looks wrong."
+            hint: "Or paste a direct cover image link here instead of uploading. Leave blank to show a placeholder card."
           - label: "Note (optional)"
             name: "note"
             widget: "string"

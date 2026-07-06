@@ -2,19 +2,170 @@
   {
     "month": "July 2026",
     "order": "2026-07",
-    "intro": "What we're reading this month — grab a copy and read along!",
+    "intro": "",
     "books": [
+      {
+        "title": "Beyond What is Given",
+        "author": "Rebecca Yarros",
+        "cover": "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1438969017i/25518107.jpg",
+        "note": "CJ"
+      },
+      {
+        "title": "Heir of Fire",
+        "author": "Sarah J. Maas",
+        "cover": "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1673566654i/76706470.jpg",
+        "note": "CJ"
+      },
+      {
+        "title": "Hex Hall",
+        "author": "Rachel Hawkins",
+        "cover": "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1368393885i/5287473.jpg",
+        "note": "Holly"
+      },
+      {
+        "title": "Him",
+        "author": "Elle Kennedy",
+        "cover": "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1638654284i/59754566.jpg",
+        "note": "Holly"
+      },
+      {
+        "title": "One Last Stop",
+        "author": "Casey McQuiston",
+        "cover": "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1598019346i/54860443.jpg",
+        "note": "Holly"
+      },
+      {
+        "title": "Rules for the Summer",
+        "author": "Meghan Quinn",
+        "cover": "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1767812627i/243359903.jpg",
+        "note": "CJ"
+      },
+      {
+        "title": "Scarred",
+        "author": "Emily McIntire",
+        "cover": "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1667492382i/63213257.jpg",
+        "note": "Holly"
+      },
+      {
+        "title": "The Dark Lord's Guide to Dating (and Other War Crimes)",
+        "author": "Tiffany Hunt",
+        "cover": "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1750425473i/236900512.jpg",
+        "note": "July Bookclub Pick"
+      },
+      {
+        "title": "Wild Eyes",
+        "author": "Elsie Silver",
+        "cover": "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1724684873i/217271581.jpg",
+        "note": "CJ"
+      }
+    ]
+  },
+  {
+    "month": "June 2026",
+    "order": "2026-06",
+    "intro": "",
+    "books": [
+      {
+        "title": "A Dangerous Kind of Love",
+        "author": "Briar Voss",
+        "cover": "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1778282026i/252000843.jpg",
+        "note": "Holly"
+      },
+      {
+        "title": "Chev's Mate",
+        "author": "Invi Wright",
+        "cover": "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1739028948i/227804442.jpg",
+        "note": "Holly"
+      },
+      {
+        "title": "Hard Feelings",
+        "author": "Jennifer Millikin",
+        "cover": "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1765261988i/244968739.jpg",
+        "note": "CJ"
+      },
+      {
+        "title": "Hothouse Flower",
+        "author": "Krista  Ritchie",
+        "cover": "",
+        "note": "Holly"
+      },
+      {
+        "title": "Lost and Lassoed",
+        "author": "Lyla Sage",
+        "cover": "",
+        "note": "CJ"
+      },
       {
         "title": "Love Overboard",
         "author": "Kandi Steiner",
-        "cover": "",
-        "note": "July book club pick"
+        "cover": "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1758890547i/233943456.jpg",
+        "note": "June Bookclub Pick"
       },
       {
-        "title": "The Seven Year Slip",
-        "author": "Ashley Poston",
+        "title": "Lucky Girl Summer",
+        "author": "Morgan Elizabeth",
+        "cover": "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1777309920i/251533007.jpg",
+        "note": "Holly"
+      },
+      {
+        "title": "One Golden Summer",
+        "author": "Carley Fortune",
         "cover": "",
-        "note": "CJ's choice"
+        "note": "Holly"
+      },
+      {
+        "title": "Overruled",
+        "author": "Lana Ferguson",
+        "cover": "",
+        "note": "CJ"
+      },
+      {
+        "title": "Over the Moon",
+        "author": "Laura Pavlov",
+        "cover": "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1749133595i/216004612.jpg",
+        "note": "CJ"
+      },
+      {
+        "title": "Queens",
+        "author": "Invi Wright",
+        "cover": "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1766737333i/226635955.jpg",
+        "note": "Holly"
+      },
+      {
+        "title": "Reckless Roses",
+        "author": "Sarah A. Bailey",
+        "cover": "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1755591049i/228952463.jpg",
+        "note": "CJ"
+      },
+      {
+        "title": "Stolen Hearts",
+        "author": "Leslie Ann",
+        "cover": "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1696864681i/199331809.jpg",
+        "note": "CJ"
+      },
+      {
+        "title": "Their War",
+        "author": "Invi Wright",
+        "cover": "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1739028881i/227804346.jpg",
+        "note": "Holly"
+      },
+      {
+        "title": "The Devious Husband",
+        "author": "Catharina Maura",
+        "cover": "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1724750221i/207110848.jpg",
+        "note": "CJ"
+      },
+      {
+        "title": "The Divorce",
+        "author": "Freida McFadden",
+        "cover": "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1769708783i/244403162.jpg",
+        "note": "Holly"
+      },
+      {
+        "title": "Wicked Souls",
+        "author": "Katie Wismer",
+        "cover": "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1632418995i/58880545.jpg",
+        "note": "Holly"
       }
     ]
   }
