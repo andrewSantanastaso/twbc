@@ -14,5 +14,8 @@
 .foot__links { display: flex; gap: 24px; }
 .foot__links a { font-size: 14px; color: var(--ink-soft); transition: color .15s; }
 .foot__links a:hover { color: var(--berry); }
+.foot__social { display: flex; gap: 16px; margin-top: 28px; }
+.foot__social a { color: var(--ink-soft); transition: color .15s, transform .15s; display: inline-flex; }
+.foot__social a:hover { color: var(--berry); transform: translateY(-1px); }
 .foot__fine { margin-top: 32px; font-size: 12.5px; color: var(--ink-soft); }
 @media (max-width: 540px) { .foot__inner { flex-direction: column; align-items: flex-start; } }

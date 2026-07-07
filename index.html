@@ -2,6 +2,10 @@
 <html lang="en">
 
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-ST5T912VSQ"></script>
   <script>
@@ -11,9 +15,6 @@
 
     gtag('config', 'G-ST5T912VSQ');
   </script>
-  <meta charset="UTF-8" />
-  <link rel="icon" type="image/png" href="/logo.png" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description"
     content="Trigger Warnings Book Club — CJ and Holly, two best friends talking sports romance, fantasy, dark romance, and the best and worst tropes. New episodes weekly." />
   <title>Trigger Warnings Book Club</title>
@@ -44,12 +45,32 @@
       "url": "https://triggerwarningsbookclub.com/",
       "description": "CJ and Holly, two best friends talking sports romance, fantasy, dark romance, and the best and worst tropes. New episodes weekly.",
       "image": "https://triggerwarningsbookclub.com/logo.png",
-      "webFeed": "https://anchor.fm/s/f2a61290/podcast/rss"
+      "webFeed": "https://anchor.fm/s/f2a61290/podcast/rss",
+      "sameAs": [
+        "https://open.spotify.com/show/31X8hxiQsxuUbJID6nPor0",
+        "https://www.youtube.com/@TriggerWarningsBookClub"
+      ]
     }
     </script>
 </head>
 
 <body>
+  <!--
+    Hidden static form for Netlify Forms detection. Netlify's build bot scrapes
+    static HTML at deploy time to register forms and their fields — it never runs
+    our React app. The real, interactive form lives in src/pages/Contact.jsx and
+    POSTs to "/" with a matching form-name. This stub MUST keep the same form
+    name ("contact") and identical field names, or submissions get rejected.
+  -->
+  <form name="contact" netlify netlify-honeypot="bot-field" hidden>
+    <input type="hidden" name="form-name" value="contact" />
+    <input type="text" name="name" />
+    <input type="email" name="email" />
+    <input type="text" name="subject" />
+    <textarea name="message"></textarea>
+    <input name="bot-field" />
+  </form>
+
   <div id="root"></div>
   <script type="module" src="/src/main.jsx"></script>
 </body>

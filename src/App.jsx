@@ -8,6 +8,7 @@ import Home from './pages/Home';
 import Episodes from './pages/Episodes';
 import ReadingList from './pages/ReadingList';
 import About from './pages/About';
+import Contact from './pages/Contact';
 
 function ScrollTop() {
   const { pathname } = useLocation();
@@ -27,6 +28,7 @@ export default function App() {
             <Route path="/episodes" element={<Episodes />} />
             <Route path="/reading-list" element={<ReadingList />} />
             <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
           </Routes>
         </main>
         <Footer />

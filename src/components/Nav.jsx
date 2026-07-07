@@ -7,6 +7,7 @@ const links = [
   { to: '/episodes', label: 'Episodes' },
   { to: '/reading-list', label: 'Reading list' },
   { to: '/about', label: 'About' },
+  { to: '/contact', label: 'Contact' },
   // WROMANCEL is a separate app served via a Netlify proxy, NOT a React route.
   // It must be a real anchor so the browser navigates (and the proxy fires),
   // rather than a NavLink that React Router would try to resolve client-side.
