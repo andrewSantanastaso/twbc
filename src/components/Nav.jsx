@@ -1,17 +1,17 @@
-import { useState, useEffect } from 'react';
-import { NavLink, Link, useLocation } from 'react-router-dom';
-import './Nav.css';
+import { useState, useEffect } from "react";
+import { NavLink, Link, useLocation } from "react-router-dom";
+import "./Nav.css";
 
 const links = [
-  { to: '/', label: 'Home', end: true },
-  { to: '/episodes', label: 'Episodes' },
-  { to: '/reading-list', label: 'Reading list' },
-  { to: '/about', label: 'About' },
-  { to: '/contact', label: 'Contact' },
+  { to: "/", label: "Home", end: true },
+  { to: "/episodes", label: "Episodes" },
+  { to: "/reading-list", label: "TBR" },
+  { to: "/about", label: "About" },
+  { to: "/contact", label: "Contact" },
   // WROMANCEL is a separate app served via a Netlify proxy, NOT a React route.
   // It must be a real anchor so the browser navigates (and the proxy fires),
   // rather than a NavLink that React Router would try to resolve client-side.
-  { to: '/wromancel', label: 'Play WROMANCEL', external: true },
+  { to: "/wromancel", label: "Play WROMANCEL", external: true },
 ];
 
 export default function Nav() {
@@ -27,13 +27,13 @@ export default function Nav() {
   useEffect(() => {
     if (!open) return;
     const onKey = (e) => {
-      if (e.key === 'Escape') setOpen(false);
+      if (e.key === "Escape") setOpen(false);
     };
-    document.addEventListener('keydown', onKey);
-    document.body.style.overflow = 'hidden';
+    document.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
     return () => {
-      document.removeEventListener('keydown', onKey);
-      document.body.style.overflow = '';
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
     };
   }, [open]);
 
@@ -60,7 +60,9 @@ export default function Nav() {
         key={l.to}
         to={l.to}
         end={l.end}
-        className={({ isActive }) => 'nav__link' + (isActive ? ' is-active' : '')}
+        className={({ isActive }) =>
+          "nav__link" + (isActive ? " is-active" : "")
+        }
         onClick={() => setOpen(false)}
       >
         {l.label}
@@ -83,20 +85,20 @@ export default function Nav() {
         {/* Hamburger toggle (hidden on desktop via CSS) */}
         <button
           className="nav__toggle"
-          aria-label={open ? 'Close menu' : 'Open menu'}
+          aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
           aria-controls="mobile-menu"
           onClick={() => setOpen((v) => !v)}
         >
-          <span className={'nav__toggle-bar' + (open ? ' is-open-1' : '')} />
-          <span className={'nav__toggle-bar' + (open ? ' is-open-2' : '')} />
-          <span className={'nav__toggle-bar' + (open ? ' is-open-3' : '')} />
+          <span className={"nav__toggle-bar" + (open ? " is-open-1" : "")} />
+          <span className={"nav__toggle-bar" + (open ? " is-open-2" : "")} />
+          <span className={"nav__toggle-bar" + (open ? " is-open-3" : "")} />
         </button>
       </div>
 
       {/* Mobile dropdown panel */}
       <div
-        className={'nav__mobile' + (open ? ' is-open' : '')}
+        className={"nav__mobile" + (open ? " is-open" : "")}
         id="mobile-menu"
         hidden={!open}
       >
