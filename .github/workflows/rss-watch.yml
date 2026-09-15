@@ -1,0 +1,106 @@
+# ─────────────────────────────────────────────────────────────
+#  Watch the podcast RSS feed and rebuild the site when a new
+#  episode appears.
+#
+#  Install at:  .github/workflows/rss-watch.yml
+#
+#  How it works
+#  ------------
+#  Every run pulls the feed and reads the <guid> of the newest
+#  item. That guid is hashed into a cache key. If GitHub already
+#  has a cache under that key, we've seen this episode before and
+#  we do nothing. If it's a cache miss, the newest episode is one
+#  we haven't seen — so we POST the Netlify build hook and save
+#  the key so the next run stays quiet.
+#
+#  Net effect: GitHub polls (free, unlimited on public repos),
+#  Netlify only builds when the feed actually changed — roughly
+#  once a week instead of hundreds of times a month.
+#
+#  Setup (two manual steps, see the notes Claude sent with this):
+#    1. Netlify → Project configuration → Build & deploy →
+#       Build hooks → Add build hook. Copy the URL.
+#    2. GitHub repo → Settings → Secrets and variables → Actions
+#       → New repository secret, named NETLIFY_BUILD_HOOK.
+# ─────────────────────────────────────────────────────────────
+
+name: Watch podcast RSS
+
+on:
+  schedule:
+    # Episodes land Monday at 10:00 UTC. Check every 10 minutes
+    # across a wide window so a DST shift or a late publish still
+    # gets caught promptly. Cron here is always UTC.
+    - cron: '*/10 9-14 * * 1'
+    # Safety net for bonus episodes, re-publishes, or a missed
+    # window — every 6 hours, all week.
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: rss-watch
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  RSS_URL: https://anchor.fm/s/f2a61290/podcast/rss
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Read newest episode guid from the feed
+        id: feed
+        run: |
+          set -euo pipefail
+
+          guid=""
+          for attempt in 1 2 3; do
+            if body=$(curl -sSL --fail --max-time 30 "$RSS_URL"); then
+              guid=$(printf '%s' "$body" \
+                | tr -d '\n' \
+                | grep -o '<guid[^>]*>[^<]*</guid>' \
+                | head -1 \
+                | sed -e 's/<[^>]*>//g' \
+                | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+              [ -n "$guid" ] && break
+            fi
+            echo "Attempt $attempt failed; retrying in 15s..."
+            sleep 15
+          done
+
+          if [ -z "$guid" ]; then
+            echo "::error::Could not read a guid from $RSS_URL after 3 attempts."
+            exit 1
+          fi
+
+          echo "Newest guid: $guid"
+          key="rss-$(printf '%s' "$guid" | sha256sum | cut -c1-32)"
+          echo "key=$key" >> "$GITHUB_OUTPUT"
+
+          mkdir -p .rss-state
+          printf '%s\n' "$guid" > .rss-state/latest
+
+      - name: Have we seen this episode before?
+        id: seen
+        uses: actions/cache@v4
+        with:
+          path: .rss-state
+          key: ${{ steps.feed.outputs.key }}
+
+      - name: Trigger Netlify build
+        if: steps.seen.outputs.cache-hit != 'true'
+        run: |
+          set -euo pipefail
+          if [ -z "${{ secrets.NETLIFY_BUILD_HOOK }}" ]; then
+            echo "::error::NETLIFY_BUILD_HOOK secret is not set."
+            exit 1
+          fi
+          curl -fsS -X POST -d '{}' "${{ secrets.NETLIFY_BUILD_HOOK }}"
+          echo "New episode detected — Netlify build triggered."
+
+      - name: Nothing new
+        if: steps.seen.outputs.cache-hit == 'true'
+        run: echo "Feed unchanged; no build triggered."
