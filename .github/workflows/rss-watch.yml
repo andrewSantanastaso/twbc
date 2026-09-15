@@ -17,11 +17,8 @@
 #  Netlify only builds when the feed actually changed — roughly
 #  once a week instead of hundreds of times a month.
 #
-#  Setup (two manual steps, see the notes Claude sent with this):
-#    1. Netlify → Project configuration → Build & deploy →
-#       Build hooks → Add build hook. Copy the URL.
-#    2. GitHub repo → Settings → Secrets and variables → Actions
-#       → New repository secret, named NETLIFY_BUILD_HOOK.
+#  Requires a repository secret named NETLIFY_BUILD_HOOK holding
+#  the Netlify build hook URL.
 # ─────────────────────────────────────────────────────────────
 
 name: Watch podcast RSS
@@ -53,19 +50,22 @@ jobs:
     steps:
       - name: Read newest episode guid from the feed
         id: feed
+        shell: bash
         run: |
           set -euo pipefail
 
           guid=""
           for attempt in 1 2 3; do
-            if body=$(curl -sSL --fail --max-time 30 "$RSS_URL"); then
-              guid=$(printf '%s' "$body" \
-                | tr -d '\n' \
-                | grep -o '<guid[^>]*>[^<]*</guid>' \
-                | head -1 \
-                | sed -e 's/<[^>]*>//g' \
-                | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-              [ -n "$guid" ] && break
+            if curl -sSL --fail --max-time 30 "$RSS_URL" -o feed.xml; then
+              # Parsed in Python rather than a grep|head pipeline: the feed
+              # has 130+ items, and head closing the pipe early kills grep
+              # with EPIPE, which "set -o pipefail" then turns into a job
+              # failure. This also skips the channel-level <podcast:guid>,
+              # since the regex only matches the bare <guid> tag.
+              guid=$(python3 -c "import re;d=open('feed.xml',encoding='utf-8',errors='replace').read();m=re.search(r'<guid[^>]*>(.*?)</guid>',d,re.S);v=m.group(1) if m else '';v=re.sub(r'<!\[CDATA\[(.*?)\]\]>',r'\1',v,flags=re.S);print(v.strip())")
+              if [ -n "$guid" ]; then
+                break
+              fi
             fi
             echo "Attempt $attempt failed; retrying in 15s..."
             sleep 15
@@ -92,13 +92,16 @@ jobs:
 
       - name: Trigger Netlify build
         if: steps.seen.outputs.cache-hit != 'true'
+        shell: bash
+        env:
+          BUILD_HOOK: ${{ secrets.NETLIFY_BUILD_HOOK }}
         run: |
           set -euo pipefail
-          if [ -z "${{ secrets.NETLIFY_BUILD_HOOK }}" ]; then
+          if [ -z "${BUILD_HOOK:-}" ]; then
             echo "::error::NETLIFY_BUILD_HOOK secret is not set."
             exit 1
           fi
-          curl -fsS -X POST -d '{}' "${{ secrets.NETLIFY_BUILD_HOOK }}"
+          curl -fsS -X POST -d '{}' "$BUILD_HOOK" > /dev/null
           echo "New episode detected — Netlify build triggered."
 
       - name: Nothing new
